@@ -1,23 +1,26 @@
-// firebase.js
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore"; // jika Anda ingin menggunakan Firestore untuk history
-import { getAuth } from "firebase/auth"; // jika Anda ingin menggunakan Firebase Auth
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+
+// Debug: Check if environment variables are read correctly
+console.log("Firebase API Key:",
+    import.meta.env.VITE_FIREBASE_API_KEY);
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDFxBcsPwu346T5c3VJMDrMN8s8AeQ6YlU",
-    authDomain: "simb-ppob.firebaseapp.com",
-    projectId: "simb-ppob",
-    storageBucket: "simb-ppob.firebasestorage.app",
-    messagingSenderId: "624382810750",
-    appId: "1:624382810750:web:9e2c3edfe1b17a26d2d62f",
-    measurementId: "G-W48Y4M819T"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const db = getFirestore(app); // Firestore instance for database
-const auth = getAuth(app); // Firebase Authentication instance
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 export { app, analytics, db, auth };
