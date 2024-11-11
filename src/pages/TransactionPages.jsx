@@ -5,6 +5,7 @@ import { useUser } from "@clerk/clerk-react";
 import AppHeader from "../components/AppHeader";
 import WelcomeSection from "../components/WelcomeSection";
 import BalanceSection from "../components/BalanceSection";
+import { Calendar, Clock, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
 
 function TransactionPages() {
   const months = [
@@ -14,7 +15,7 @@ function TransactionPages() {
 
   const [activeMonth, setActiveMonth] = useState(new Date().getMonth());
   const [transactions, setTransactions] = useState([]);
-  const [visibleTransactions, setVisibleTransactions] = useState(5); // Jumlah transaksi yang terlihat
+  const [visibleTransactions, setVisibleTransactions] = useState(5);
   const [loading, setLoading] = useState(true);
   const { user } = useUser();
 
@@ -44,15 +45,13 @@ function TransactionPages() {
     return () => unsubscribe();
   }, [user]);
 
-  // Filter transaksi sesuai bulan yang aktif
   const filteredTransactions = transactions.filter((transaction) => {
     if (!transaction.date) return false;
     return transaction.date.getMonth() === activeMonth;
   });
 
-  // Fungsi untuk menambah jumlah transaksi yang terlihat
   const handleShowMore = () => {
-    setVisibleTransactions((prev) => prev + 5); // Tambah 5 transaksi lagi
+    setVisibleTransactions((prev) => prev + 5);
   };
 
   return (
@@ -67,63 +66,88 @@ function TransactionPages() {
       </div>
 
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4 text-gray-700">Riwayat Transaksi</h1>
-
-        {/* Pilihan Bulan */}
-        <div className="flex overflow-x-auto mb-6 space-x-2 pb-2 border-b-2">
-          {months.map((month, index) => (
-            <button
-              key={index}
-              onClick={() => setActiveMonth(index)}
-              className={`px-4 py-2 rounded-lg ${
-                activeMonth === index
-                  ? "bg-red-500 text-white font-semibold"
-                  : "bg-gray-100 text-gray-600 hover:bg-red-200"
-              }`}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-bold text-gray-800">Riwayat Transaksi</h1>
+          <div className="bg-white rounded-lg shadow-sm p-2">
+            <select 
+              value={activeMonth}
+              onChange={(e) => setActiveMonth(Number(e.target.value))}
+              className="text-gray-600 focus:outline-none bg-transparent"
             >
-              {month}
-            </button>
-          ))}
+              {months.map((month, index) => (
+                <option key={index} value={index}>{month}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {/* Kontainer Transaksi */}
-        <div className="bg-white shadow-lg rounded-lg p-6 max-w-4xl mx-auto space-y-4">
+        <div className="p-6">
           {loading ? (
-            <p className="text-gray-500">Memuat transaksi...</p>
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-gray-500 font-medium">Memuat transaksi...</p>
+            </div>
           ) : filteredTransactions.length > 0 ? (
-            // Menampilkan hanya transaksi sesuai jumlah visibleTransactions
-            filteredTransactions.slice(0, visibleTransactions).map((transaction) => (
-              <div
-                key={transaction.id}
-                className="flex justify-between items-center p-4 border rounded-lg"
-              >
-                <div>
-                  <span
-                    className={`text-lg font-semibold ${
-                      transaction.amount >= 0 ? "text-green-500" : "text-red-500"
-                    }`}
-                  >
-                    {transaction.amount >= 0 ? "+ " : "- "}Rp{Number(transaction.amount).toLocaleString("id-ID")}
-                  </span>
-                  <div className="text-sm text-gray-400">
-                    {transaction.date.toLocaleDateString("id-ID")} · {transaction.date.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })}
+            <div className="space-y-4">
+              {filteredTransactions.slice(0, visibleTransactions).map((transaction) => (
+                <div
+                  key={transaction.id}
+                  className="group flex items-center justify-between p-4 rounded-xl transition-all duration-200 hover:bg-gray-50 border border-gray-100"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className={`p-2 rounded-full ${
+                      transaction.amount >= 0 
+                        ? "bg-green-100 text-green-600" 
+                        : "bg-red-100 text-red-600"
+                    }`}>
+                      {transaction.amount >= 0 ? (
+                        <ArrowUpCircle className="w-5 h-5" />
+                      ) : (
+                        <ArrowDownCircle className="w-5 h-5" />
+                      )}
+                    </div>
+                    
+                    <div>
+                      <div className={`text-lg font-semibold ${
+                        transaction.amount >= 0 ? "text-green-600" : "text-red-600"
+                      }`}>
+                        {transaction.amount >= 0 ? "+" : "-"} Rp{Math.abs(Number(transaction.amount)).toLocaleString("id-ID")}
+                      </div>
+                      <div className="text-sm text-gray-500 flex items-center space-x-3">
+                        <span className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-1" />
+                          {transaction.date.toLocaleDateString("id-ID")}
+                        </span>
+                        <span className="flex items-center">
+                          <Clock className="w-4 h-4 mr-1" />
+                          {transaction.date.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="px-3 py-1.5 bg-gray-50 rounded-lg text-sm text-gray-600 group-hover:bg-white">
+                    {transaction.message || "Tidak ada pesan"}
                   </div>
                 </div>
-                <div className="text-gray-500 text-sm">{transaction.message || "Tidak ada pesan"}</div>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">
-              Tidak ada transaksi di bulan {months[activeMonth]}.
-            </p>
-          )}
+              ))}
 
-          {/* Tombol Show More */}
-          {visibleTransactions < filteredTransactions.length && (
-            <div className="text-center mt-4">
-              <button onClick={handleShowMore} className="text-red-500 font-semibold hover:underline">
-                Show more
-              </button>
+              {visibleTransactions < filteredTransactions.length && (
+                <div className="text-center pt-4">
+                  <button 
+                    onClick={handleShowMore}
+                    className="px-5 py-2 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-colors duration-200"
+                  >
+                    Tampilkan Lebih Banyak
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">
+                Tidak ada transaksi di bulan {months[activeMonth]}.
+              </p>
             </div>
           )}
         </div>
