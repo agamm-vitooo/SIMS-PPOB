@@ -1,7 +1,3 @@
-Berikut adalah README dalam Bahasa Indonesia sesuai dengan permintaan Anda:
-
----
-
 # SIMS-PPOB
 
 **SIMS-PPOB** adalah aplikasi berbasis web yang dikembangkan dengan teknologi React dan Vite untuk keperluan Point of Payment Online Banking (PPOB). Aplikasi ini memanfaatkan Firebase sebagai layanan backend serta didukung dengan pengaturan tampilan menggunakan Tailwind CSS.
